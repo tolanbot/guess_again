@@ -9,18 +9,19 @@ DEFAULT_MAX_NUM = 10
 DEFAULT_MAX_TRIES = 5
 
 
+class Difficulty(Enum):
+    EASY = auto()
+    MEDIUM = auto()
+    HARD = auto()
+    MAD_MAX = auto()
+
+
 @dataclass(frozen=True)
 class GameConfig:
-    difficulty: str
+    difficulty: Difficulty
     min_num: int
     max_num: int
     max_tries: int
-
-
-class Difficulty(Enum):
-    EASY = GameConfig("Easy", DEFAULT_MIN_NUM, DEFAULT_MAX_NUM, DEFAULT_MAX_TRIES)
-    MEDIUM = GameConfig("Medium", 1, 20, 5)
-    HARD = GameConfig("Hard", 1, 50, 7)
 
 
 @dataclass
@@ -35,36 +36,67 @@ class GameStats:
 def choose_difficulty() -> Difficulty:
     while True:
         print(
-            """
+            """\
 Choose Difficulty:
     1. Easy   (1-10, 5 tries)
     2. Medium (1-20, 5 tries)
     3. Hard   (1-50, 7 tries)
-    """
+    4. MadMax (Custom Game Config)"""
         )
-        choice = input("Enter 1, 2, or 3: ").strip()
+        choice = input("Enter 1, 2, 3 or 4: ").strip()
 
         if choice == "1":
-            print(f"{Difficulty.EASY.value.difficulty} difficulty selected.")
             return Difficulty.EASY
         if choice == "2":
-            print(f"{Difficulty.MEDIUM.value.difficulty} difficulty selected.")
             return Difficulty.MEDIUM
         if choice == "3":
-            print(f"{Difficulty.HARD.value.difficulty} difficulty selected.")
             return Difficulty.HARD
-        print("Invalid Choice. Please enter 1, 2, or 3...")
+        if choice == "4":
+            return Difficulty.MAD_MAX
+        print("Invalid Choice. Please enter 1, 2, 3, or 4...")
+
+
+def map_difficulty_to_config(difficulty: Difficulty) -> GameConfig:
+    if difficulty == Difficulty.EASY:
+        return GameConfig(Difficulty.EASY, DEFAULT_MIN_NUM, DEFAULT_MAX_NUM, DEFAULT_MAX_TRIES)
+    elif difficulty == Difficulty.MEDIUM:
+        return GameConfig(Difficulty.MEDIUM, 1, 20, 5)
+    elif difficulty == Difficulty.HARD:
+        return GameConfig(Difficulty.HARD, 1, 50, 7)
+    else:
+        return get_custom_game_config()
+
+
+def get_custom_game_config() -> GameConfig:
+    while True:
+        max_num = input("Choose max num: ")
+        try:
+            max_num = int(max_num)
+            break
+        except ValueError:
+            print("Could not parse value.")
+            continue
+
+    while True:
+        max_tries = input("Choose max number of tries: ")
+        try:
+            max_tries = int(max_tries)
+            break
+        except ValueError:
+            print("Could not parse value")
+            continue
+
+    return GameConfig(Difficulty.MAD_MAX, DEFAULT_MIN_NUM, max_num, max_tries)
 
 
 def get_stats(stats: GameStats):
     print(
-        f"""
+        f"""\
 ***** Current Game Stats *****
 Games Played: {stats.games_played}
 Games Won: {stats.games_won}
 Games Lost: {stats.games_lost}
-Games Abandoned: {stats.games_abandonded}
-"""
+Games Abandoned: {stats.games_abandonded}"""
     )
 
 
@@ -72,8 +104,12 @@ def play_game(config: GameConfig, stats: GameStats):
     rand_num: int = randint(config.min_num, config.max_num)
     num_guesses: int = 0
     guesses: set[int] = set()
-
-    print(f"\nCurrent difficulty: {config.difficulty}")
+    if config.difficulty != Difficulty.MAD_MAX:
+        print(f"Current difficulty: {config.difficulty.name.title()}")
+    else:
+        print(
+            f"Current difficulty: {config.difficulty.name.replace("_", " ").title()} (Max Num: {config.max_num}, Max Tries: {config.max_tries})"
+        )
 
     while num_guesses < config.max_tries:
         entry = get_guess_or_command(config)
@@ -111,9 +147,11 @@ def play_game(config: GameConfig, stats: GameStats):
             print("You guessed the random number!")
             return
 
-        greater_or_lower = "lower" if guess < rand_num else "higher"
-        print(f"Your guess is {greater_or_lower} than the random number.")
-        print(f"You have {config.max_tries - num_guesses} remaining...")
+        greater_or_lower = "Too low..." if guess < rand_num else "Too high..."
+        print(greater_or_lower)
+        remaining_guesses = config.max_tries - num_guesses
+        guess_or_guesses = "guess" if remaining_guesses == 1 else "guesses"
+        print(f"You have {remaining_guesses} {guess_or_guesses} remaining...")
 
     stats.games_lost += 1
     stats.games_played += 1
@@ -139,12 +177,12 @@ def display_main_menu(config: GameConfig, stats: GameStats):
     print("***** GUESS AGAIN: THE GAME *****")
     while True:
         print(
-            """
+            """\
+Main Menu:
     1. Start
     2. Choose Difficulty
     3. Current Stats
-    4. Quit
-    """
+    4. Quit"""
         )
         choice = input("Enter 1, 2, 3 or 4: ").strip()
 
@@ -157,7 +195,8 @@ def display_main_menu(config: GameConfig, stats: GameStats):
             continue
         if choice == "2":
             difficulty = choose_difficulty()
-            config = difficulty.value
+            print(f"{difficulty.name.replace("_", " ").title()} difficutly selected.")
+            config = map_difficulty_to_config(difficulty)
             continue
         if choice == "3":
             get_stats(stats)
@@ -170,8 +209,7 @@ def display_main_menu(config: GameConfig, stats: GameStats):
 
 def main() -> None:
     stats = GameStats()
-    config = Difficulty.EASY.value
-    display_main_menu(config, stats)
+    display_main_menu(map_difficulty_to_config(Difficulty.EASY), stats)
 
 
 if __name__ == "__main__":
