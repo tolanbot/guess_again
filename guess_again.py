@@ -33,6 +33,12 @@ class GameStats:
     high_score: int = 0
 
 
+class GameResult(Enum):
+    WON = auto()
+    LOST = auto()
+    QUIT = auto()
+
+
 def choose_difficulty() -> Difficulty:
     while True:
         print(
@@ -72,24 +78,31 @@ def map_difficulty_to_config(difficulty: Difficulty) -> GameConfig:
 
 def get_custom_game_config() -> GameConfig:
     while True:
-        max_num = input("Choose max num: ")
-        try:
-            max_num = int(max_num)
-            break
-        except ValueError:
-            print("Could not parse value...")
+        max_num = parse_int_from_input("Choose max num: ")
+        max_tries = parse_int_from_input("Choose max number of tries: ")
+        if max_tries > max_num:
+            print("Max num should be greater than max tries... please choose again.")
             continue
-
-    while True:
-        max_tries = input("Choose max number of tries: ")
-        try:
-            max_tries = int(max_tries)
-            break
-        except ValueError:
-            print("Could not parse value...")
-            continue
-
+        break
     return GameConfig(Difficulty.MAD_MAX, DEFAULT_MIN_NUM, max_num, max_tries)
+
+
+def parse_int_from_input(prompt: str) -> int:
+    while True:
+        response = input(prompt)
+        try:
+            parsed_int = int(response)
+            if is_positive(parsed_int):
+                return parsed_int
+            print("Number must be greater than zero...")
+            continue
+        except ValueError:
+            print("Could not parse int value...")
+            continue
+
+
+def is_positive(num: int) -> bool:
+    return num > 0
 
 
 def get_stats(stats: GameStats):
@@ -104,37 +117,26 @@ Games Abandoned: {stats.games_abandoned}"""
     )
 
 
-def play_game(config: GameConfig, stats: GameStats):
+def play_game(config: GameConfig, stats: GameStats) -> GameResult:
     rand_num: int = randint(config.min_num, config.max_num)
     num_guesses: int = 0
     guesses: set[int] = set()
     display_game_config(config)
 
     while num_guesses < config.max_tries:
-        entry = get_guess_or_command(config)
+        prompt = "Guess again... "
+        entry = input(prompt).strip().lower()
 
         if entry == "quit":
-            stats.games_abandoned += 1
-            stats.games_played += 1
             print("Ending this round...")
-            return True
+            return GameResult.QUIT
 
         if entry == "stats":
             get_stats(stats)
             continue
 
-        try:
-            guess = int(entry)
-        except ValueError:
-            print("Type entered cannot be converted to int... Guess again!")
-            continue
-
-        if guess < config.min_num or guess > config.max_num:
-            print(f"Guess must be between {config.min_num} and {config.max_num} (inclusive)... Guess again!")
-            continue
-
-        if guess in guesses:
-            print(f"You have already guessed {guess}... Guess again!")
+        guess = validate_guess(entry, config, guesses)
+        if guess == None:
             continue
 
         num_guesses += 1
@@ -142,37 +144,45 @@ def play_game(config: GameConfig, stats: GameStats):
         guesses.add(guess)
 
         if guess == rand_num:
-            stats.games_won += 1
-            stats.games_played += 1
             score = calculate_score(config, remaining_guesses)
             print("You guessed the random number!")
             print(f"Score: {score}")
             if score > stats.high_score:
                 stats.high_score = score
                 print("You got a new high score!!!")
-            return False
+            return GameResult.WON
 
         greater_or_lower = "Too low..." if guess < rand_num else "Too high..."
         print(greater_or_lower)
         guess_or_guesses = "guess" if remaining_guesses == 1 else "guesses"
         print(f"You have {remaining_guesses} {guess_or_guesses} remaining...")
 
-    stats.games_lost += 1
-    stats.games_played += 1
     print("Sorry too many guesses! The number was", rand_num)
+    return GameResult.LOST
+
+
+def validate_guess(entry: str, config: GameConfig, guesses: set[int]) -> int | None:
+    try:
+        guess = int(entry)
+    except ValueError:
+        print("Type entered cannot be converted to int... Guess again!")
+        return None
+
+    if guess < config.min_num or guess > config.max_num:
+        print(f"Guess must be between {config.min_num} and {config.max_num} (inclusive)... Guess again!")
+        return None
+
+    if guess in guesses:
+        print(f"You have already guessed {guess}... Guess again!")
+        return None
+    return guess
 
 
 def calculate_score(config: GameConfig, remaining_guesses: int) -> int:
     range_size = config.max_num - config.min_num + 1
     return int((range_size / config.max_tries) * (remaining_guesses + 1) * 10)
 
-
-def get_guess_or_command(config: GameConfig) -> str:
-    prompt = "Guess again... "
-    return input(prompt).strip().lower()
-
-
-def player_continue():
+def player_continue() -> bool:
     while True:
         answer = input("Do you want to play again?(y/n) ").strip().lower()
         if answer == "y":
@@ -182,7 +192,7 @@ def player_continue():
         print("Please only enter 'y' or 'n'...")
 
 
-def display_main_menu(config: GameConfig, stats: GameStats):
+def display_main_menu(config: GameConfig, stats: GameStats) -> None:
     print("***** GUESS AGAIN: THE GAME *****")
     while True:
         print(
@@ -196,34 +206,45 @@ Main Menu:
 
         choice = input("Enter 1, 2, 3 or 4: ").strip()
 
-        if choice == "1":
+        if choice == "1" or choice.lower() == "start":
             while True:
-                player_quit_mid_game = play_game(config, stats)
-                if player_quit_mid_game:
+                game_result = play_game(config, stats)
+                add_result_to_stats(game_result, stats)
+                if game_result == GameResult.QUIT:
                     break
                 if not player_continue():
                     print("Back to main menu...")
                     break
             continue
-        if choice == "2":
+        if choice == "2" or choice.lower() == "diff":
             difficulty = choose_difficulty()
             print(f"{display_difficulty(difficulty)} difficulty selected.")
             config = map_difficulty_to_config(difficulty)
             continue
-        if choice == "3":
+        if choice == "3" or choice.lower() == "stats":
             get_stats(stats)
             continue
-        if choice == "4":
+        if choice == "4" or choice.lower() == "quit":
             print("Goodbye for now!")
             break
         print("Invalid Choice. Please enter 1, 2, 3 or 4...")
 
 
-def display_difficulty(difficulty: Difficulty):
+def add_result_to_stats(game_result: GameResult, stats: GameStats) -> None:
+    stats.games_played += 1
+    if game_result == GameResult.QUIT:
+        stats.games_abandoned += 1
+    if game_result == GameResult.WON:
+        stats.games_won += 1
+    if game_result == GameResult.LOST:
+        stats.games_lost += 1
+
+
+def display_difficulty(difficulty: Difficulty) -> str:
     return difficulty.name.replace("_", " ").title()
 
 
-def display_game_config(config: GameConfig):
+def display_game_config(config: GameConfig) -> None:
     prompt = f"""\
 Guess a number between {config.min_num} and {config.max_num}...
 You have {config.max_tries} tries.
