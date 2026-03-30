@@ -106,12 +106,7 @@ def play_game(config: GameConfig, stats: GameStats):
     rand_num: int = randint(config.min_num, config.max_num)
     num_guesses: int = 0
     guesses: set[int] = set()
-    if config.difficulty != Difficulty.MAD_MAX:
-        print(f"Current difficulty: {config.difficulty.name.title()}")
-    else:
-        print(
-            f"Current difficulty: {config.difficulty.name.replace("_", " ").title()} (Max Num: {config.max_num}, Max Tries: {config.max_tries})"
-        )
+    display_game_config(config)
 
     while num_guesses < config.max_tries:
         entry = get_guess_or_command(config)
@@ -171,7 +166,7 @@ def calculate_score(config: GameConfig, remaining_guesses: int) -> int:
 
 
 def get_guess_or_command(config: GameConfig) -> str:
-    prompt = f"Guess a number between {config.min_num} and {config.max_num} " f"(or type 'stats' or 'quit'): "
+    prompt = "Guess again..."
     return input(prompt).strip().lower()
 
 
@@ -189,10 +184,10 @@ def display_main_menu(config: GameConfig, stats: GameStats):
     print("***** GUESS AGAIN: THE GAME *****")
     while True:
         print(
-            """\
+            f"""\
 Main Menu:
     1. Start
-    2. Choose Difficulty
+    2. Choose Difficulty (Current Difficulty: {display_difficulty(config.difficulty)})
     3. Current Stats
     4. Quit"""
         )
@@ -210,7 +205,7 @@ Main Menu:
             continue
         if choice == "2":
             difficulty = choose_difficulty()
-            print(f"{difficulty.name.replace("_", " ").title()} difficulty selected.")
+            print(f"{display_difficulty(difficulty)} difficulty selected.")
             config = map_difficulty_to_config(difficulty)
             continue
         if choice == "3":
@@ -220,6 +215,18 @@ Main Menu:
             print("Goodbye for now!")
             break
         print("Invalid Choice. Please enter 1, 2, 3 or 4...")
+
+
+def display_difficulty(difficulty: Difficulty):
+    return difficulty.name.replace("_", " ").title()
+
+
+def display_game_config(config: GameConfig):
+    prompt = f"""\
+Guess a number between {config.min_num} and {config.max_num}...
+You have {config.max_tries} tries.
+(or type 'stats' or 'quit'): """
+    print(prompt)
 
 
 def main() -> None:
