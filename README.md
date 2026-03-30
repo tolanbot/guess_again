@@ -2,7 +2,7 @@
 
 A command-line number guessing game written in Python.
 
-Players can start a game from a main menu, choose a difficulty level, and try to guess a randomly generated number within a limited number of attempts. The game also supports a custom "Mad Max" mode where the player sets the maximum number and maximum number of tries.
+Players can start a game from a main menu, choose a difficulty level, and try to guess a randomly generated number within a limited number of attempts. The game also supports a custom "Mad Max" mode where the player sets a custom maximum number and maximum number of tries.
 
 ## Features
 
@@ -23,10 +23,12 @@ Players can start a game from a main menu, choose a difficulty level, and try to
   * games won
   * games lost
   * games abandoned
+  * current high score
 * Prevents duplicate guesses
 * Validates menu choices and numeric input
 * Displays remaining guesses after each valid guess
-* Handles singular/plural guess wording
+* Calculates a score when the player wins
+* Updates and announces a new high score when earned
 
 ## Difficulty Levels
 
@@ -77,7 +79,7 @@ Replace `main.py` with your actual Python filename if it is different.
 During a game, you can type:
 
 * `stats` — display the current game statistics
-* `quit` — abandon the current round
+* `quit` — abandon the current round and return to the main menu
 
 ## Main Menu Example
 
@@ -100,6 +102,24 @@ Choose Difficulty:
     4. MadMax (Custom Game Config)
 ```
 
+## Scoring
+
+When you win a round, the game calculates a score based on:
+
+* the size of the number range
+* the number of allowed tries
+* how many guesses you had remaining
+
+Higher difficulty settings and winning with more guesses remaining lead to higher scores.
+
+## Current Statistics Tracked
+
+* Games Played
+* Games Won
+* Games Lost
+* Games Abandoned
+* Current High Score
+
 ## What This Project Practices
 
 This project was built to practice:
@@ -112,18 +132,11 @@ This project was built to practice:
 * dataclasses
 * enums
 * mapping enum values to runtime configuration
+* simple score calculation
 * basic command-line program organization
-
-## Current Statistics Tracked
-
-* Games Played
-* Games Won
-* Games Lost
-* Games Abandoned
 
 ## Future Improvements
 
-* Track and display a true high score
 * Save stats between program runs
 * Add a reset stats option
 * Add automated tests
