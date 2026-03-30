@@ -29,7 +29,7 @@ class GameStats:
     games_played: int = 0
     games_won: int = 0
     games_lost: int = 0
-    games_abandonded: int = 0
+    games_abandoned: int = 0
     high_score: int = 0
 
 
@@ -41,7 +41,7 @@ Choose Difficulty:
     1. Easy   (1-10, 4 tries)
     2. Medium (1-50, 5 tries)
     3. Hard   (1-100, 7 tries)
-    4. MadMax (Custom Game Config)"""
+    4. Mad Max (Custom Game Config)"""
         )
 
         choice = input("Enter 1, 2, 3 or 4: ").strip()
@@ -66,6 +66,8 @@ def map_difficulty_to_config(difficulty: Difficulty) -> GameConfig:
         return GameConfig(Difficulty.HARD, DEFAULT_MIN_NUM, 100, 7)
     if difficulty == Difficulty.MAD_MAX:
         return get_custom_game_config()
+
+    raise ValueError(f"Unsupported difficulty: {difficulty}")
 
 
 def get_custom_game_config() -> GameConfig:
@@ -98,7 +100,7 @@ Games Played: {stats.games_played}
 Games Won: {stats.games_won}
 Current High Score: {stats.high_score}
 Games Lost: {stats.games_lost}
-Games Abandoned: {stats.games_abandonded}"""
+Games Abandoned: {stats.games_abandoned}"""
     )
 
 
@@ -112,7 +114,7 @@ def play_game(config: GameConfig, stats: GameStats):
         entry = get_guess_or_command(config)
 
         if entry == "quit":
-            stats.games_abandonded += 1
+            stats.games_abandoned += 1
             stats.games_played += 1
             print("Ending this round...")
             return True
@@ -166,7 +168,7 @@ def calculate_score(config: GameConfig, remaining_guesses: int) -> int:
 
 
 def get_guess_or_command(config: GameConfig) -> str:
-    prompt = "Guess again..."
+    prompt = "Guess again... "
     return input(prompt).strip().lower()
 
 
