@@ -61,9 +61,9 @@ def map_difficulty_to_config(difficulty: Difficulty) -> GameConfig:
     if difficulty == Difficulty.EASY:
         return GameConfig(Difficulty.EASY, DEFAULT_MIN_NUM, DEFAULT_MAX_NUM, DEFAULT_MAX_TRIES)
     elif difficulty == Difficulty.MEDIUM:
-        return GameConfig(Difficulty.MEDIUM, 1, 50, 5)
+        return GameConfig(Difficulty.MEDIUM, DEFAULT_MIN_NUM, 50, 5)
     elif difficulty == Difficulty.HARD:
-        return GameConfig(Difficulty.HARD, 1, 100, 7)
+        return GameConfig(Difficulty.HARD, DEFAULT_MIN_NUM, 100, 7)
     else:
         return get_custom_game_config()
 
