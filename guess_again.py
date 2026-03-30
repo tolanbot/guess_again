@@ -112,7 +112,7 @@ def is_positive(num: int) -> bool:
     return num > 0
 
 
-def get_stats(stats: GameStats, config: GameConfig):
+def get_stats(stats: GameStats, config: GameConfig) -> None:
     print(
         f"""\
 ***** Current Game Stats *****
@@ -138,12 +138,10 @@ def play_game(config: GameConfig, stats: GameStats) -> GameResult:
         prompt = "Guess again... "
         entry = input(prompt).strip().lower()
 
-        if entry == "quit" or entry == "q":
-            print("Ending this round...")
-            return GameResult.QUIT
-
-        if entry == "stats" or entry == "st":
-            get_stats(stats, config)
+        command_received, result = handle_command_entry(entry, config, stats)
+        if command_received:
+            if result is not None:
+                return result
             continue
 
         guess = validate_guess(entry, config, guesses)
@@ -151,19 +149,40 @@ def play_game(config: GameConfig, stats: GameStats) -> GameResult:
             continue
 
         num_guesses += 1
-        remaining_guesses = config.max_tries - num_guesses
-        guesses.add(guess)
-
-        if guess_is_match(guess, rand_num, config, stats, remaining_guesses):
-            return GameResult.WON
-
-        greater_or_lower = "Too low..." if guess < rand_num else "Too high..."
-        print(greater_or_lower)
-        guess_or_guesses = "guess" if remaining_guesses == 1 else "guesses"
-        print(f"You have {remaining_guesses} {guess_or_guesses} remaining...")
+        result = process_valid_guess(guesses, guess, num_guesses, config, rand_num, stats)
+        if result is not None:
+            return result
 
     print("Sorry too many guesses! The number was", rand_num)
     return GameResult.LOST
+
+
+def handle_command_entry(entry: str, config: GameConfig, stats: GameStats) -> tuple[bool, GameResult | None]:
+    if entry in ("quit", "q"):
+        print("Ending this round...")
+        return True, GameResult.QUIT
+
+    if entry in ("stats", "st"):
+        get_stats(stats, config)
+        return True, None
+
+    return False, None
+
+
+def process_valid_guess(
+    guesses: set[int], guess: int, num_guesses: int, config: GameConfig, rand_num: int, stats: GameStats
+) -> GameResult | None:
+    guesses.add(guess)
+    remaining_guesses = config.max_tries - num_guesses
+
+    if guess_is_match(guess, rand_num, config, stats, remaining_guesses):
+        return GameResult.WON
+
+    greater_or_lower = "Too low..." if guess < rand_num else "Too high..."
+    print(greater_or_lower)
+    guess_or_guesses = "guess" if remaining_guesses == 1 else "guesses"
+    print(f"You have {remaining_guesses} {guess_or_guesses} remaining...")
+    return None
 
 
 def validate_guess(entry: str, config: GameConfig, guesses: set[int]) -> int | None:
