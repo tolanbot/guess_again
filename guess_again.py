@@ -75,7 +75,7 @@ def get_custom_game_config() -> GameConfig:
             max_num = int(max_num)
             break
         except ValueError:
-            print("Could not parse value.")
+            print("Could not parse value...")
             continue
 
     while True:
@@ -84,7 +84,7 @@ def get_custom_game_config() -> GameConfig:
             max_tries = int(max_tries)
             break
         except ValueError:
-            print("Could not parse value")
+            print("Could not parse value...")
             continue
 
     return GameConfig(Difficulty.MAD_MAX, DEFAULT_MIN_NUM, max_num, max_tries)
@@ -175,7 +175,7 @@ def get_guess_or_command(config: GameConfig) -> str:
     return input(prompt).strip().lower()
 
 
-def get_continue():
+def player_continue():
     while True:
         answer = input("Do you want to play again?(y/n) ").strip().lower()
         if answer == "y":
@@ -204,7 +204,7 @@ Main Menu:
                 player_quit_mid_game = play_game(config, stats)
                 if player_quit_mid_game:
                     break
-                if not get_continue():
+                if not player_continue():
                     print("Back to main menu...")
                     break
             continue
