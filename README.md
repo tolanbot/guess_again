@@ -1,8 +1,10 @@
+Use this as your updated README.md. It matches the current code, including per-difficulty high scores, the current difficulty values, the menu/input shortcuts, and the current Mad Max validation rules. 
+
 # Guess Again
 
 A command-line number guessing game written in Python.
 
-Players can start a game from a main menu, choose a difficulty level, and try to guess a randomly generated number within a limited number of attempts. The game also supports a custom "Mad Max" mode where the player sets a custom maximum number and maximum number of tries. 
+Players can start a game from a main menu, choose a difficulty level, and try to guess a randomly generated number within a limited number of attempts. The game also supports a custom "Mad Max" mode where the player sets a custom maximum number and maximum number of tries.
 
 ## Features
 
@@ -17,25 +19,31 @@ Players can start a game from a main menu, choose a difficulty level, and try to
 
   * `stats`
   * `quit`
-* Main menu shortcuts:
+* Menu shortcuts and aliases:
 
-  * `start`
-  * `diff`
-  * `stats`
-  * `quit`
+  * Start: `1`, `start`, `s`
+  * Choose Difficulty: `2`, `diff`, `d`
+  * Current Stats: `3`, `stats`, `st`
+  * Quit: `4`, `quit`, `q`
+* Difficulty selection shortcuts:
+
+  * Easy: `1`, `easy`, `e`
+  * Medium: `2`, `medium`, `md`
+  * Hard: `3`, `hard`, `h`
+  * Mad Max: `4`, `mad max`, `madmax`, `mm`
 * Tracks game statistics:
 
   * games played
   * games won
   * games lost
   * games abandoned
-  * current high score
+  * high scores for each difficulty
 * Prevents duplicate guesses
 * Validates menu choices and numeric input
 * Displays remaining guesses after each valid guess
 * Calculates a score when the player wins
-* Updates and announces a new high score when earned
-* Uses explicit game results (`WON`, `LOST`, `QUIT`) to track outcomes cleanly 
+* Updates and announces a new high score for the current difficulty when earned
+* Uses explicit game results (`WON`, `LOST`, `QUIT`) to track outcomes cleanly
 
 ## Difficulty Levels
 
@@ -48,11 +56,11 @@ Mad Max currently requires:
 
 * max number must be greater than 0
 * max tries must be greater than 0
-* max tries cannot be greater than max number 
+* max tries cannot be greater than max number
 
 ## Requirements
 
-* Python 3.10 or newer 
+* Python 3.10 or newer
 
 ## How to Run
 
@@ -87,14 +95,14 @@ Replace `main.py` with your actual Python filename if it is different.
    * run out of tries
    * type `quit`
 
-If you quit during a round, the round ends immediately and is counted as an abandoned game. 
+If you quit during a round, the round ends immediately and is counted as an abandoned game.
 
 ## In-Game Commands
 
 During a game, you can type:
 
-* `stats` — display the current game statistics
-* `quit` — abandon the current round
+* `stats` or `st` — display the current game statistics
+* `quit` or `q` — abandon the current round
 
 ## Main Menu Example
 
@@ -132,7 +140,7 @@ The current score formula is based on:
 * `range_size = max_num - min_num + 1`
 * `(range_size / max_tries) * (remaining_guesses + 1) * 10`
 
-The result is converted to an integer before being stored or displayed. 
+The result is converted to an integer before being stored or displayed.
 
 ## Current Statistics Tracked
 
@@ -140,7 +148,10 @@ The result is converted to an integer before being stored or displayed.
 * Games Won
 * Games Lost
 * Games Abandoned
-* Current High Score 
+* High Score for Easy
+* High Score for Medium
+* High Score for Hard
+* High Score for Mad Max
 
 ## What This Project Practices
 
@@ -155,9 +166,10 @@ This project was built to practice:
 * enums
 * mapping enum values to runtime configuration
 * helper-function decomposition
-* simple score calculation
+* score calculation
+* per-difficulty stat tracking
 * result-based state handling
-* basic command-line program organization 
+* basic command-line program organization
 
 ## Future Improvements
 
@@ -165,12 +177,12 @@ This project was built to practice:
 * Add a reset stats option
 * Add automated tests
 * Refactor `play_game()` further into smaller helper functions
-* Add richer score tracking, such as per-round score history
-* Add difficulty-specific statistics
-* Improve Mad Max validation rules and messaging
-* Add support for custom minimum number instead of always starting at 1
-* Improve menu/input UX by supporting more shortcuts consistently
-* Add a replay summary screen after each round 
+* Add a round summary screen after each completed game
+* Add total score accumulation across rounds
+* Add win-rate tracking by difficulty
+* Add support for a custom minimum number instead of always starting at 1
+* Improve messaging and formatting for the stats screen
+* Add a hint system or optional difficulty modifiers
 
 ## Author
 
