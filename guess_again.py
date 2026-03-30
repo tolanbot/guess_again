@@ -210,7 +210,7 @@ Main Menu:
             continue
         if choice == "2":
             difficulty = choose_difficulty()
-            print(f"{difficulty.name.replace("_", " ").title()} difficutly selected.")
+            print(f"{difficulty.name.replace("_", " ").title()} difficulty selected.")
             config = map_difficulty_to_config(difficulty)
             continue
         if choice == "3":
