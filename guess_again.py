@@ -1,6 +1,6 @@
 # number guessing game
 from random import randint
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 
 
@@ -30,7 +30,14 @@ class GameStats:
     games_won: int = 0
     games_lost: int = 0
     games_abandoned: int = 0
-    high_score: int = 0
+    high_scores: dict[Difficulty, int] = field(
+        default_factory=lambda: {
+            Difficulty.EASY: 0,
+            Difficulty.MEDIUM: 0,
+            Difficulty.HARD: 0,
+            Difficulty.MAD_MAX: 0,
+        }
+    )
 
 
 class GameResult(Enum):
@@ -105,15 +112,19 @@ def is_positive(num: int) -> bool:
     return num > 0
 
 
-def get_stats(stats: GameStats):
+def get_stats(stats: GameStats, config: GameConfig):
     print(
         f"""\
 ***** Current Game Stats *****
 Games Played: {stats.games_played}
 Games Won: {stats.games_won}
-Current High Score: {stats.high_score}
 Games Lost: {stats.games_lost}
-Games Abandoned: {stats.games_abandoned}"""
+Games Abandoned: {stats.games_abandoned}
+High Scores:
+    {display_difficulty(Difficulty.EASY)}:\t{stats.high_scores[Difficulty.EASY]}
+    {display_difficulty(Difficulty.MEDIUM)}:\t{stats.high_scores[Difficulty.MEDIUM]}
+    {display_difficulty(Difficulty.HARD)}:\t{stats.high_scores[Difficulty.HARD]}
+    {display_difficulty(Difficulty.MAD_MAX)}:\t{stats.high_scores[Difficulty.MAD_MAX]}"""
     )
 
 
@@ -127,12 +138,12 @@ def play_game(config: GameConfig, stats: GameStats) -> GameResult:
         prompt = "Guess again... "
         entry = input(prompt).strip().lower()
 
-        if entry == "quit":
+        if entry == "quit" or entry == "q":
             print("Ending this round...")
             return GameResult.QUIT
 
-        if entry == "stats":
-            get_stats(stats)
+        if entry == "stats" or entry == "st":
+            get_stats(stats, config)
             continue
 
         guess = validate_guess(entry, config, guesses)
@@ -177,8 +188,8 @@ def guess_is_match(guess: int, rand_num: int, config: GameConfig, stats: GameSta
         score = calculate_score(config, remaining_guesses)
         print("You guessed the random number!")
         print(f"Score: {score}")
-        if score > stats.high_score:
-            stats.high_score = score
+        if score > stats.high_scores[config.difficulty]:
+            stats.high_scores[config.difficulty] = score
             print("You got a new high score!!!")
         return True
     return False
@@ -211,9 +222,9 @@ Main Menu:
     4. Quit"""
         )
 
-        choice = input("Enter 1, 2, 3 or 4: ").strip()
+        choice = input("Enter 1, 2, 3 or 4: ").strip().lower()
 
-        if choice == "1" or choice.lower() == "start":
+        if choice == "1" or choice == "start" or choice == "s":
             while True:
                 game_result = play_game(config, stats)
                 add_result_to_stats(game_result, stats)
@@ -223,15 +234,15 @@ Main Menu:
                     print("Back to main menu...")
                     break
             continue
-        if choice == "2" or choice.lower() == "diff":
+        if choice == "2" or choice == "diff" or choice == "d":
             difficulty = choose_difficulty()
             print(f"{display_difficulty(difficulty)} difficulty selected.")
             config = map_difficulty_to_config(difficulty)
             continue
-        if choice == "3" or choice.lower() == "stats":
-            get_stats(stats)
+        if choice == "3" or choice == "stats" or choice == "st":
+            get_stats(stats, config)
             continue
-        if choice == "4" or choice.lower() == "quit":
+        if choice == "4" or choice == "quit" or choice == "q":
             print("Goodbye for now!")
             break
         print("Invalid Choice. Please enter 1, 2, 3 or 4...")
