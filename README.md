@@ -1,4 +1,4 @@
-Use this as your updated README.md. It matches the current code, including per-difficulty high scores, the current difficulty values, the menu/input shortcuts, and the current Mad Max validation rules. 
+Use this as your updated README.md. It matches the current code, including per-difficulty high scores, command aliases, the current scoring behavior, and the current Mad Max validation rules. 
 
 # Guess Again
 
@@ -19,7 +19,7 @@ Players can start a game from a main menu, choose a difficulty level, and try to
 
   * `stats`
   * `quit`
-* Menu shortcuts and aliases:
+* Main menu shortcuts and aliases:
 
   * Start: `1`, `start`, `s`
   * Choose Difficulty: `2`, `diff`, `d`
@@ -176,13 +176,13 @@ This project was built to practice:
 * Save stats between program runs
 * Add a reset stats option
 * Add automated tests
-* Refactor `play_game()` further into smaller helper functions
 * Add a round summary screen after each completed game
 * Add total score accumulation across rounds
 * Add win-rate tracking by difficulty
 * Add support for a custom minimum number instead of always starting at 1
-* Improve messaging and formatting for the stats screen
+* Improve stats screen formatting and alignment
 * Add a hint system or optional difficulty modifiers
+* Refine the score formula further if you want a different difficulty curve
 
 ## Author
 
