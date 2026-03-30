@@ -9,6 +9,12 @@ DEFAULT_MAX_NUM = 10
 DEFAULT_MAX_TRIES = 4
 
 
+class GameResult(Enum):
+    WON = auto()
+    LOST = auto()
+    QUIT = auto()
+
+
 class Difficulty(Enum):
     EASY = auto()
     MEDIUM = auto()
@@ -38,12 +44,6 @@ class GameStats:
             Difficulty.MAD_MAX: 0,
         }
     )
-
-
-class GameResult(Enum):
-    WON = auto()
-    LOST = auto()
-    QUIT = auto()
 
 
 def choose_difficulty() -> Difficulty:
@@ -128,35 +128,6 @@ High Scores:
     )
 
 
-def play_game(config: GameConfig, stats: GameStats) -> GameResult:
-    rand_num: int = randint(config.min_num, config.max_num)
-    num_guesses: int = 0
-    guesses: set[int] = set()
-    display_game_config(config)
-
-    while num_guesses < config.max_tries:
-        prompt = "Guess again... "
-        entry = input(prompt).strip().lower()
-
-        command_received, result = handle_command_entry(entry, config, stats)
-        if command_received:
-            if result is not None:
-                return result
-            continue
-
-        guess = validate_guess(entry, config, guesses)
-        if guess == None:
-            continue
-
-        num_guesses += 1
-        result = process_valid_guess(guesses, guess, num_guesses, config, rand_num, stats)
-        if result is not None:
-            return result
-
-    print("Sorry too many guesses! The number was", rand_num)
-    return GameResult.LOST
-
-
 def handle_command_entry(entry: str, config: GameConfig, stats: GameStats) -> tuple[bool, GameResult | None]:
     if entry in ("quit", "q"):
         print("Ending this round...")
@@ -229,6 +200,57 @@ def player_continue() -> bool:
         print("Please only enter 'y' or 'n'...")
 
 
+def add_result_to_stats(game_result: GameResult, stats: GameStats) -> None:
+    stats.games_played += 1
+    if game_result == GameResult.QUIT:
+        stats.games_abandoned += 1
+    if game_result == GameResult.WON:
+        stats.games_won += 1
+    if game_result == GameResult.LOST:
+        stats.games_lost += 1
+
+
+def display_difficulty(difficulty: Difficulty) -> str:
+    return difficulty.name.replace("_", " ").title()
+
+
+def display_game_config(config: GameConfig) -> None:
+    prompt = f"""\
+Guess a number between {config.min_num} and {config.max_num}...
+You have {config.max_tries} tries.
+(or type 'stats' or 'quit'): """
+    print(prompt)
+
+
+def play_game(config: GameConfig, stats: GameStats) -> GameResult:
+    rand_num: int = randint(config.min_num, config.max_num)
+    num_guesses: int = 0
+    guesses: set[int] = set()
+    display_game_config(config)
+
+    while num_guesses < config.max_tries:
+        prompt = "Guess again... "
+        entry = input(prompt).strip().lower()
+
+        command_received, result = handle_command_entry(entry, config, stats)
+        if command_received:
+            if result is not None:
+                return result
+            continue
+
+        guess = validate_guess(entry, config, guesses)
+        if guess == None:
+            continue
+
+        num_guesses += 1
+        result = process_valid_guess(guesses, guess, num_guesses, config, rand_num, stats)
+        if result is not None:
+            return result
+
+    print("Sorry too many guesses! The number was", rand_num)
+    return GameResult.LOST
+
+
 def display_main_menu(config: GameConfig, stats: GameStats) -> None:
     print("***** GUESS AGAIN: THE GAME *****")
     while True:
@@ -265,28 +287,6 @@ Main Menu:
             print("Goodbye for now!")
             break
         print("Invalid Choice. Please enter 1, 2, 3 or 4...")
-
-
-def add_result_to_stats(game_result: GameResult, stats: GameStats) -> None:
-    stats.games_played += 1
-    if game_result == GameResult.QUIT:
-        stats.games_abandoned += 1
-    if game_result == GameResult.WON:
-        stats.games_won += 1
-    if game_result == GameResult.LOST:
-        stats.games_lost += 1
-
-
-def display_difficulty(difficulty: Difficulty) -> str:
-    return difficulty.name.replace("_", " ").title()
-
-
-def display_game_config(config: GameConfig) -> None:
-    prompt = f"""\
-Guess a number between {config.min_num} and {config.max_num}...
-You have {config.max_tries} tries.
-(or type 'stats' or 'quit'): """
-    print(prompt)
 
 
 def main() -> None:
