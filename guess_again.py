@@ -35,7 +35,7 @@ class GameStats:
     games_played: int = 0
     games_won: int = 0
     games_lost: int = 0
-    games_abandoned: int = 0
+    games_aborted: int = 0
     high_scores: dict[Difficulty, int] = field(
         default_factory=lambda: {
             Difficulty.EASY: 0,
@@ -46,7 +46,7 @@ class GameStats:
     )
 
 
-def choose_difficulty() -> Difficulty:
+def choose_difficulty(config: GameConfig, previous_difficulty: Difficulty) -> Difficulty:
     while True:
         print(
             """\
@@ -59,15 +59,17 @@ Choose Difficulty:
 
         choice = input("Enter 1, 2, 3 or 4: ").strip().lower()
 
-        if choice == "1" or choice == "easy" or choice == "e":
+        if choice in ("1", "easy", "e"):
             return Difficulty.EASY
-        if choice == "2" or choice == "medium" or choice == "md":
+        if choice in ("2", "medium", "md"):
             return Difficulty.MEDIUM
-        if choice == "3" or choice == "hard" or choice == "h":
+        if choice in ("3", "hard", "h"):
             return Difficulty.HARD
-        if choice == "4" or choice == "mad max" or choice == "madmax" or choice == "mm":
+        if choice in ("4", "mad max", "madmax", "mm"):
             return Difficulty.MAD_MAX
-        print("Invalid Choice. Please enter 1, 2, 3, or 4...")
+        if choice in ("5", "back", "b"):
+            return previous_difficulty
+        print("Invalid Choice. Please enter 1, 2, 3, 4 or 5...")
 
 
 def map_difficulty_to_config(difficulty: Difficulty) -> GameConfig:
@@ -116,10 +118,10 @@ def get_stats(stats: GameStats, config: GameConfig) -> None:
     print(
         f"""\
 ***** Current Game Stats *****
-Games Played: {stats.games_played}
-Games Won: {stats.games_won}
-Games Lost: {stats.games_lost}
-Games Abandoned: {stats.games_abandoned}
+Games Played:\t{stats.games_played}
+Games Won:\t{stats.games_won}
+Games Lost:\t{stats.games_lost}
+Games Aborted:\t{stats.games_aborted}
 High Scores:
     {display_difficulty(Difficulty.EASY)}:\t{stats.high_scores[Difficulty.EASY]}
     {display_difficulty(Difficulty.MEDIUM)}:\t{stats.high_scores[Difficulty.MEDIUM]}
@@ -135,6 +137,10 @@ def handle_command_entry(entry: str, config: GameConfig, stats: GameStats) -> tu
 
     if entry in ("stats", "st"):
         get_stats(stats, config)
+        return True, None
+
+    if entry in ("shortcuts", "sh"):
+        display_shortcuts()
         return True, None
 
     return False, None
@@ -203,7 +209,7 @@ def player_continue() -> bool:
 def add_result_to_stats(game_result: GameResult, stats: GameStats) -> None:
     stats.games_played += 1
     if game_result == GameResult.QUIT:
-        stats.games_abandoned += 1
+        stats.games_aborted += 1
     if game_result == GameResult.WON:
         stats.games_won += 1
     if game_result == GameResult.LOST:
@@ -218,8 +224,20 @@ def display_game_config(config: GameConfig) -> None:
     prompt = f"""\
 Guess a number between {config.min_num} and {config.max_num}...
 You have {config.max_tries} tries.
-(or type 'stats' or 'quit'): """
+(or type 'stats' | "shortcuts" | 'quit'): """
     print(prompt)
+
+
+def display_shortcuts() -> None:
+    print(
+        """\
+***** COMMAND SHORTCUTS *****
+Start Game: "start" | "s"
+Choose Difficulty: "diff" | "d"
+Go Back: "back" | "b" (if you decide not to change difficulty)
+Quit Game: "quit" | "q"
+Show Stats: "stats" | "st\""""
+    )
 
 
 def play_game(config: GameConfig, stats: GameStats) -> GameResult:
@@ -260,12 +278,13 @@ Main Menu:
     1. Start
     2. Choose Difficulty (Current Difficulty: {display_difficulty(config.difficulty)})
     3. Current Stats
-    4. Quit"""
+    4. Show Shortcuts
+    5. Quit"""
         )
 
-        choice = input("Enter 1, 2, 3 or 4: ").strip().lower()
+        choice = input("Enter 1, 2, 3, 4 or 5: ").strip().lower()
 
-        if choice == "1" or choice == "start" or choice == "s":
+        if choice in ("1", "start", "s"):
             while True:
                 game_result = play_game(config, stats)
                 add_result_to_stats(game_result, stats)
@@ -275,18 +294,27 @@ Main Menu:
                     print("Back to main menu...")
                     break
             continue
-        if choice == "2" or choice == "diff" or choice == "d":
-            difficulty = choose_difficulty()
-            print(f"{display_difficulty(difficulty)} difficulty selected.")
+        if choice in ("2", "diff", "d"):
+            previous_difficulty = config.difficulty
+            difficulty = choose_difficulty(config, previous_difficulty)
+            difficulty_notification = (
+                f"{display_difficulty(difficulty)} difficulty remains unchanged."
+                if difficulty == previous_difficulty
+                else f"{display_difficulty(difficulty)} difficulty selected."
+            )
+            print(difficulty_notification)
             config = map_difficulty_to_config(difficulty)
             continue
-        if choice == "3" or choice == "stats" or choice == "st":
+        if choice in ("3", "stats", "st"):
             get_stats(stats, config)
             continue
-        if choice == "4" or choice == "quit" or choice == "q":
+        if choice in ("4", "shortcuts", "sh"):
+            display_shortcuts()
+            continue
+        if choice in ("5", "quit", "q"):
             print("Goodbye for now!")
             break
-        print("Invalid Choice. Please enter 1, 2, 3 or 4...")
+        print("Invalid Choice. Please enter 1, 2, 3, 4 or 5...")
 
 
 def main() -> None:

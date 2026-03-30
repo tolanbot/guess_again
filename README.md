@@ -1,5 +1,3 @@
-Use this as your updated README.md. It matches the current code, including per-difficulty high scores, command aliases, the current scoring behavior, and the current Mad Max validation rules. 
-
 # Guess Again
 
 A command-line number guessing game written in Python.
@@ -19,24 +17,27 @@ Players can start a game from a main menu, choose a difficulty level, and try to
 
   * `stats`
   * `quit`
+  * `shortcuts`
 * Main menu shortcuts and aliases:
 
   * Start: `1`, `start`, `s`
   * Choose Difficulty: `2`, `diff`, `d`
   * Current Stats: `3`, `stats`, `st`
-  * Quit: `4`, `quit`, `q`
+  * Show Shortcuts: `4`, `shortcuts`, `sh`
+  * Quit: `5`, `quit`, `q`
 * Difficulty selection shortcuts:
 
   * Easy: `1`, `easy`, `e`
   * Medium: `2`, `medium`, `md`
   * Hard: `3`, `hard`, `h`
   * Mad Max: `4`, `mad max`, `madmax`, `mm`
+  * Back without changing difficulty: `5`, `back`, `b`
 * Tracks game statistics:
 
   * games played
   * games won
   * games lost
-  * games abandoned
+  * games aborted
   * high scores for each difficulty
 * Prevents duplicate guesses
 * Validates menu choices and numeric input
@@ -56,7 +57,7 @@ Mad Max currently requires:
 
 * max number must be greater than 0
 * max tries must be greater than 0
-* max tries cannot be greater than max number
+* max number must be greater than or equal to max tries
 
 ## Requirements
 
@@ -87,6 +88,7 @@ Replace `main.py` with your actual Python filename if it is different.
    * Start
    * Choose Difficulty
    * Current Stats
+   * Show Shortcuts
    * Quit
 3. If you choose Start, the game begins using the currently selected configuration
 4. Enter guesses until you:
@@ -95,14 +97,15 @@ Replace `main.py` with your actual Python filename if it is different.
    * run out of tries
    * type `quit`
 
-If you quit during a round, the round ends immediately and is counted as an abandoned game.
+If you quit during a round, the round ends immediately and is counted as an aborted game.
 
 ## In-Game Commands
 
 During a game, you can type:
 
 * `stats` or `st` — display the current game statistics
-* `quit` or `q` — abandon the current round
+* `quit` or `q` — abort the current round
+* `shortcuts` or `sh` — display the shortcut list
 
 ## Main Menu Example
 
@@ -112,7 +115,8 @@ Main Menu:
     1. Start
     2. Choose Difficulty (Current Difficulty: Easy)
     3. Current Stats
-    4. Quit
+    4. Show Shortcuts
+    5. Quit
 ```
 
 ## Difficulty Selection Example
@@ -123,6 +127,17 @@ Choose Difficulty:
     2. Medium (1-50, 5 tries)
     3. Hard   (1-100, 7 tries)
     4. Mad Max (Custom Game Config)
+```
+
+## Shortcut Menu Example
+
+```
+***** COMMAND SHORTCUTS *****
+Start Game: "start" | "s"
+Choose Difficulty: "diff" | "d"
+Go Back: "back" | "b" (if you decide not to change difficulty)
+Quit Game: "quit" | "q"
+Show Stats: "stats" | "st"
 ```
 
 ## Scoring
@@ -147,7 +162,7 @@ The result is converted to an integer before being stored or displayed.
 * Games Played
 * Games Won
 * Games Lost
-* Games Abandoned
+* Games Aborted
 * High Score for Easy
 * High Score for Medium
 * High Score for Hard
