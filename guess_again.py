@@ -95,6 +95,7 @@ def get_stats(stats: GameStats):
 ***** Current Game Stats *****
 Games Played: {stats.games_played}
 Games Won: {stats.games_won}
+Current High Score: {stats.high_score}
 Games Lost: {stats.games_lost}
 Games Abandoned: {stats.games_abandonded}"""
     )
@@ -117,8 +118,8 @@ def play_game(config: GameConfig, stats: GameStats):
         if entry == "quit":
             stats.games_abandonded += 1
             stats.games_played += 1
-            print("Ending This Round.")
-            return
+            print("Ending this round...")
+            return True
 
         if entry == "stats":
             get_stats(stats)
@@ -139,17 +140,22 @@ def play_game(config: GameConfig, stats: GameStats):
             continue
 
         num_guesses += 1
+        remaining_guesses = config.max_tries - num_guesses
         guesses.add(guess)
 
         if guess == rand_num:
             stats.games_won += 1
             stats.games_played += 1
+            score = calculate_score(config, remaining_guesses)
             print("You guessed the random number!")
-            return
+            print(f"Score: {score}")
+            if(score > stats.high_score):
+                stats.high_score = score
+                print("You got a new high score!!!")
+            return False
 
         greater_or_lower = "Too low..." if guess < rand_num else "Too high..."
         print(greater_or_lower)
-        remaining_guesses = config.max_tries - num_guesses
         guess_or_guesses = "guess" if remaining_guesses == 1 else "guesses"
         print(f"You have {remaining_guesses} {guess_or_guesses} remaining...")
 
@@ -157,6 +163,9 @@ def play_game(config: GameConfig, stats: GameStats):
     stats.games_played += 1
     print("Sorry too many guesses! The number was", rand_num)
 
+def calculate_score(config: GameConfig, remaining_guesses: int) -> int:
+    range_size = config.max_num - config.min_num + 1
+    return int((range_size / config.max_tries) * (remaining_guesses + 1) * 10)
 
 def get_guess_or_command(config: GameConfig) -> str:
     prompt = f"Guess a number between {config.min_num} and {config.max_num} " f"(or type 'stats' or 'quit'): "
@@ -188,7 +197,9 @@ Main Menu:
 
         if choice == "1":
             while True:
-                play_game(config, stats)
+                player_quit_mid_game = play_game(config, stats)
+                if player_quit_mid_game:
+                    break
                 if not get_continue():
                     print("Back to main menu...")
                     break
