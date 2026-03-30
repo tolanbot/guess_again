@@ -32,9 +32,9 @@ Players can start a game from a main menu, choose a difficulty level, and try to
 
 ## Difficulty Levels
 
-* Easy: numbers from 1 to 10, 5 tries
-* Medium: numbers from 1 to 20, 5 tries
-* Hard: numbers from 1 to 50, 7 tries
+* Easy: numbers from 1 to 10, 4 tries
+* Medium: numbers from 1 to 50, 5 tries
+* Hard: numbers from 1 to 100, 7 tries
 * Mad Max: custom maximum number and custom number of tries chosen by the user
 
 ## Requirements
@@ -96,9 +96,9 @@ Main Menu:
 
 ```
 Choose Difficulty:
-    1. Easy   (1-10, 5 tries)
-    2. Medium (1-20, 5 tries)
-    3. Hard   (1-50, 7 tries)
+    1. Easy   (1-10, 4 tries)
+    2. Medium (1-50, 5 tries)
+    3. Hard   (1-100, 7 tries)
     4. MadMax (Custom Game Config)
 ```
 

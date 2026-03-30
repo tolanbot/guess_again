@@ -6,7 +6,7 @@ from enum import Enum, auto
 
 DEFAULT_MIN_NUM = 1
 DEFAULT_MAX_NUM = 10
-DEFAULT_MAX_TRIES = 5
+DEFAULT_MAX_TRIES = 4
 
 
 class Difficulty(Enum):
@@ -38,12 +38,12 @@ def choose_difficulty() -> Difficulty:
         print(
             """\
 Choose Difficulty:
-    1. Easy   (1-10, 5 tries)
-    2. Medium (1-20, 5 tries)
-    3. Hard   (1-50, 7 tries)
+    1. Easy   (1-10, 4 tries)
+    2. Medium (1-50, 5 tries)
+    3. Hard   (1-100, 7 tries)
     4. MadMax (Custom Game Config)"""
         )
-        
+
         choice = input("Enter 1, 2, 3 or 4: ").strip()
 
         if choice == "1":
@@ -61,9 +61,9 @@ def map_difficulty_to_config(difficulty: Difficulty) -> GameConfig:
     if difficulty == Difficulty.EASY:
         return GameConfig(Difficulty.EASY, DEFAULT_MIN_NUM, DEFAULT_MAX_NUM, DEFAULT_MAX_TRIES)
     elif difficulty == Difficulty.MEDIUM:
-        return GameConfig(Difficulty.MEDIUM, 1, 20, 5)
+        return GameConfig(Difficulty.MEDIUM, 1, 50, 5)
     elif difficulty == Difficulty.HARD:
-        return GameConfig(Difficulty.HARD, 1, 50, 7)
+        return GameConfig(Difficulty.HARD, 1, 100, 7)
     else:
         return get_custom_game_config()
 
@@ -150,7 +150,7 @@ def play_game(config: GameConfig, stats: GameStats):
             score = calculate_score(config, remaining_guesses)
             print("You guessed the random number!")
             print(f"Score: {score}")
-            if(score > stats.high_score):
+            if score > stats.high_score:
                 stats.high_score = score
                 print("You got a new high score!!!")
             return False
@@ -164,9 +164,11 @@ def play_game(config: GameConfig, stats: GameStats):
     stats.games_played += 1
     print("Sorry too many guesses! The number was", rand_num)
 
+
 def calculate_score(config: GameConfig, remaining_guesses: int) -> int:
     range_size = config.max_num - config.min_num + 1
     return int((range_size / config.max_tries) * (remaining_guesses + 1) * 10)
+
 
 def get_guess_or_command(config: GameConfig) -> str:
     prompt = f"Guess a number between {config.min_num} and {config.max_num} " f"(or type 'stats' or 'quit'): "
