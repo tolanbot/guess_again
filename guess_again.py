@@ -50,15 +50,15 @@ Choose Difficulty:
     4. Mad Max (Custom Game Config)"""
         )
 
-        choice = input("Enter 1, 2, 3 or 4: ").strip()
+        choice = input("Enter 1, 2, 3 or 4: ").strip().lower()
 
-        if choice == "1":
+        if choice == "1" or choice == "easy" or choice == "e":
             return Difficulty.EASY
-        if choice == "2":
+        if choice == "2" or choice == "medium" or choice == "md":
             return Difficulty.MEDIUM
-        if choice == "3":
+        if choice == "3" or choice == "hard" or choice == "h":
             return Difficulty.HARD
-        if choice == "4":
+        if choice == "4" or choice == "mad max" or choice == "madmax" or choice == "mm":
             return Difficulty.MAD_MAX
         print("Invalid Choice. Please enter 1, 2, 3, or 4...")
 
@@ -143,13 +143,7 @@ def play_game(config: GameConfig, stats: GameStats) -> GameResult:
         remaining_guesses = config.max_tries - num_guesses
         guesses.add(guess)
 
-        if guess == rand_num:
-            score = calculate_score(config, remaining_guesses)
-            print("You guessed the random number!")
-            print(f"Score: {score}")
-            if score > stats.high_score:
-                stats.high_score = score
-                print("You got a new high score!!!")
+        if guess_is_match(guess, rand_num, config, stats, remaining_guesses):
             return GameResult.WON
 
         greater_or_lower = "Too low..." if guess < rand_num else "Too high..."
@@ -178,9 +172,22 @@ def validate_guess(entry: str, config: GameConfig, guesses: set[int]) -> int | N
     return guess
 
 
+def guess_is_match(guess: int, rand_num: int, config: GameConfig, stats: GameStats, remaining_guesses: int) -> bool:
+    if guess == rand_num:
+        score = calculate_score(config, remaining_guesses)
+        print("You guessed the random number!")
+        print(f"Score: {score}")
+        if score > stats.high_score:
+            stats.high_score = score
+            print("You got a new high score!!!")
+        return True
+    return False
+
+
 def calculate_score(config: GameConfig, remaining_guesses: int) -> int:
     range_size = config.max_num - config.min_num + 1
     return int((range_size / config.max_tries) * (remaining_guesses + 1) * 10)
+
 
 def player_continue() -> bool:
     while True:
