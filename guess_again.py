@@ -43,6 +43,7 @@ Choose Difficulty:
     3. Hard   (1-50, 7 tries)
     4. MadMax (Custom Game Config)"""
         )
+        
         choice = input("Enter 1, 2, 3 or 4: ").strip()
 
         if choice == "1":
@@ -193,6 +194,7 @@ Main Menu:
     3. Current Stats
     4. Quit"""
         )
+
         choice = input("Enter 1, 2, 3 or 4: ").strip()
 
         if choice == "1":
